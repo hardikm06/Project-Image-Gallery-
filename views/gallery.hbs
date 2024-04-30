@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-image: url('https://img.freepik.com/free-photo/high-angle-view-two-pink-craftpapers-magenta-background_23-2147878478.jpg?w=900&t=st=1713609149~exp=1713609749~hmac=41863603e8213338265194c9adb493462ef9cdb8290ee446ff60329756595ca0'); /* Add background image */
+            background-size: cover; /* Ensure the background image covers the entire body */
+            background-repeat: no-repeat; /* Prevent background image from repeating */
+            background-position: center; /* Center the background image */
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: left;
+            margin-bottom: 40px;
+            background: linear-gradient(to right, #ff0000, #0000ff); /* Replace with desired gradient */
+            -webkit-background-clip: text; /* For Safari */
+            font-family: "Arial", sans-serif; /* Replace with desired font */
+            font-style: italic;
+            background-clip: text;
+            color: transparent; /* Hide the text */
+        }
+        
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-gap: 20px;
+        }
+
+        .image {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative; /* Add relative positioning */
+        }
+
+        .image:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .image img {
+            width: 100%;
+            height: 200px; /* Set a fixed height for all images */
+            object-fit: cover; /* Ensure images cover the container */
+            display: block;
+        }
+
+        .image .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #f44336; /* Red color for delete button */
+            color: white;
+            border: none;
+            border-radius: 50%; /* Circular shape for delete button */
+            padding: 5px;
+            cursor: pointer;
+            z-index: 1; /* Ensure delete button is above the image */
+        }
+
+        .image .delete-button:hover {
+            background-color: #d32f2f; /* Darker shade of red on hover */
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Photo Gallery</h1>
+    <div class="gallery">
+        {{#each images}}
+            <div class="image" onclick="openModal('{{this.imagePath}}')">
+                <img src="{{this.imagePath}}" alt="Image">
+                <button class="delete-button" onclick="deleteImage('{{this._id}}')">X</button>
+            </div>
+        {{/each}}
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+
+    <script>
+        function openModal(imagePath) {
+            var modal = document.getElementById('myModal');
+            var modalImg = document.getElementById("img01");
+            modal.style.display = "block";
+            modalImg.src = imagePath;
+        }
+        
+        function closeModal() {
+            var modal = document.getElementById('myModal');
+            modal.style.display = "none";
+        }
+
+        function deleteImage(imageId) {
+            if (confirm("Are you sure you want to delete this image?")) {
+                fetch(`/delete/${imageId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to delete image');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
